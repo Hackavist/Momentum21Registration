@@ -16,9 +16,10 @@ namespace MomentumRegistrationApi.Repository.Implementations
         private readonly IMongoCollection<T> Collection;
         private readonly FilterDefinitionBuilder<T> filterBuilder = Builders<T>.Filter;
 
-        public Repository(CustomMongoClient mongoClient)
+        public Repository(ICustomMongoClient mongoClient)
         {
-            var database = mongoClient.GetDatabase(mongoClient.DatabaseName);
+            var customClient = mongoClient as CustomMongoClient;
+            var database = mongoClient.GetDatabase(customClient.DatabaseName);
             Collection = database.GetCollection<T>(nameof(T));
         }
 
@@ -56,7 +57,7 @@ namespace MomentumRegistrationApi.Repository.Implementations
         {
             try
             {
-                var before = Collection.CountDocuments(filterBuilder.Empty);
+                var before = Collection.CountDocuments(filterBuilder.Empty)+1;
                 Collection.InsertMany(items);
                 var after = Collection.CountDocuments(filterBuilder.Empty);
                 var insertedIds = new List<long>();

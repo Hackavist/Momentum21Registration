@@ -37,7 +37,7 @@ namespace MomentumRegistrationApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MomentumRegistrationApi", Version = "v1" });
             });
-            services.AddSingleton<IMongoClient>(serviceProvider =>{
+            services.AddTransient<ICustomMongoClient>(serviceProvider =>{
                 var settings =Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
                 return new CustomMongoClient(settings.ConnectionString,settings.DbName);
             });

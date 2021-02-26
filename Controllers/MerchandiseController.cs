@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MomentumRegistrationApi.Dtos;
 using MomentumRegistrationApi.Entities;
 using MongoDB.Driver;
 using Repository.Implementations;
+using MomentumRegistrationApi.Extensions;
 
 namespace Controllers
 {
@@ -17,52 +19,59 @@ namespace Controllers
         private readonly ILogger<MerchandiseController> _logger;
         private readonly IMerchandiseRepository merchandiseRepository;
 
-        public MerchandiseController(IMerchandiseRepository merchandiseRepository,ILogger<MerchandiseController> logger)
+        public MerchandiseController(IMerchandiseRepository merchandiseRepository, ILogger<MerchandiseController> logger)
         {
             _logger = logger;
             this.merchandiseRepository = merchandiseRepository;
         }
 
         [HttpGet]
-        public IEnumerable<MerchItem> GetAllMerch()
+        public ActionResult<IEnumerable<MerchandiseResponseDto>> GetAllMerch()
         {
-            return merchandiseRepository.GetAll();
+            return StatusCode(200, merchandiseRepository.GetAll().Select(item => item.AsResponseDto()));
         }
-        [HttpGet("/GetById{Id}")]
-        public MerchItem GetMerchById(Guid Id)
+        [HttpGet("{Id}")]
+        public ActionResult<MerchandiseResponseDto> GetMerchById(Guid Id)
         {
-            return merchandiseRepository.Get(Id);
+            return StatusCode(200, merchandiseRepository.Get(Id).AsResponseDto());
         }
-        
+
         [HttpGet("/TshirtSizes")]
-        public IEnumerable<string> GetSizes()
+        public ActionResult<IEnumerable<string>> GetSizes()
         {
-            return merchandiseRepository.GetTshirtSizes();
+            return StatusCode(200, merchandiseRepository.GetTshirtSizes());
         }
         [HttpPost]
-        public long InsertMerch(MerchItem item)
+        public ActionResult<long> InsertMerch(MerchandiseRequestDto item)
         {
-            return merchandiseRepository.Insert(item);
+
+            return StatusCode(200, merchandiseRepository.Insert(item.AsMerchItem()));
         }
         [HttpPost("/many")]
-        public IEnumerable<long> InsertManyMerch(IEnumerable<MerchItem> items)
+        public ActionResult<IEnumerable<long>> InsertManyMerch(IEnumerable<MerchandiseRequestDto> items)
         {
-            return merchandiseRepository.InsertMany(items);
+            return StatusCode(200, merchandiseRepository.InsertMany(items.Select(x => x.AsMerchItem())));
         }
-        [HttpPut]
-        public IActionResult UpdateMerch(MerchItem item)
+        [HttpPut("{id}")]
+        public IActionResult UpdateMerch([FromRoute] Guid id, [FromBody] MerchandiseRequestDto item)
         {
-            //return 
-            if(merchandiseRepository.Update(item).IsAcknowledged)
-                return StatusCode(204); 
+            var oldItem = merchandiseRepository.Get(id);
+            var newItem = oldItem with
+            {
+                Price = item.Price,
+                ImageBase64 = item.ImageBase64,
+                Type = item.Type
+            };
+            if (merchandiseRepository.Update(newItem).IsAcknowledged)
+                return StatusCode(204);
             else
                 return StatusCode(400);
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult DeleteMerch(Guid id)
         {
-            if(merchandiseRepository.Delete(id).IsAcknowledged)
-                return StatusCode(204); 
+            if (merchandiseRepository.Delete(id).IsAcknowledged)
+                return StatusCode(204);
             else
                 return StatusCode(400);
         }

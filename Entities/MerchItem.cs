@@ -1,4 +1,3 @@
-using System;
 using MomentumRegistrationApi.Enums;
 
 namespace MomentumRegistrationApi.Entities

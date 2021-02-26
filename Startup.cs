@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Repository.Implementations;
 
 namespace MomentumRegistrationApi
 {
@@ -32,6 +33,7 @@ namespace MomentumRegistrationApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MomentumRegistrationApi", Version = "v1" });
             });
+            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

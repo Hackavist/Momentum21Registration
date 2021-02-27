@@ -8,11 +8,11 @@ namespace MomentumRegistrationApi.Repository
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        IEnumerable<T> GetAll();
-        T Get(Guid id);
-        long Insert(T item);
-        IEnumerable<long> InsertMany(IEnumerable<T> items);
-        ReplaceOneResult Update(T item);
-        DeleteResult Delete(Guid itemId);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T> GetAsync(Guid id);
+        Task<long> InsertAsync(T item);
+        Task<IEnumerable<long>> InsertManyAsync(IEnumerable<T> items);
+        Task<ReplaceOneResult> UpdateAsync(T item);
+        Task<DeleteResult> DeleteAsync(Guid itemId);
     }
 }

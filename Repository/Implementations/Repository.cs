@@ -4,15 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using MomentumRegistrationApi.Entities;
 using MomentumRegistrationApi.Settings;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MomentumRegistrationApi.Repository.Implementations
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
-
-        // private readonly IMongoClient mongoClient;
         private readonly IMongoCollection<T> Collection;
         private readonly FilterDefinitionBuilder<T> filterBuilder = Builders<T>.Filter;
 
@@ -23,29 +20,30 @@ namespace MomentumRegistrationApi.Repository.Implementations
             Collection = database.GetCollection<T>(nameof(T));
         }
 
-        public DeleteResult Delete(Guid itemId)
+        public async Task<DeleteResult> DeleteAsync(Guid itemId)
         {
             var filter = filterBuilder.Eq(item => item.Id, itemId);
-            return Collection.DeleteOne(filter);
+            return await Collection.DeleteOneAsync(filter);
         }
 
-        public T Get(Guid id)
+        public async Task<T> GetAsync(Guid id)
         {
             var filter = filterBuilder.Eq(item => item.Id, id);
-            return Collection.Find(filter).SingleOrDefault();
+            return await Collection.Find(filter).SingleOrDefaultAsync();
         }
 
-        public IEnumerable<T> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return Collection.AsQueryable();
+            return await Collection.Find(filterBuilder.Empty).ToListAsync();
         }
 
-        public long Insert(T item)
+        public async Task<long> InsertAsync(T item)
         {
             try
             {
-                Collection.InsertOne(item);
-                return Collection.CountDocuments(filterBuilder.Empty);
+                item.RegistrationNumber = await Collection.EstimatedDocumentCountAsync() + 1;
+                await Collection.InsertOneAsync(item);
+                return item.RegistrationNumber;
             }
             catch (MongoWriteException mwx)
             {
@@ -53,19 +51,18 @@ namespace MomentumRegistrationApi.Repository.Implementations
             }
         }
 
-        public IEnumerable<long> InsertMany(IEnumerable<T> items)
+        public async Task<IEnumerable<long>> InsertManyAsync(IEnumerable<T> items)
         {
             try
             {
-                var before = Collection.CountDocuments(filterBuilder.Empty)+1;
-                Collection.InsertMany(items);
-                var after = Collection.CountDocuments(filterBuilder.Empty);
-                var insertedIds = new List<long>();
-                for (long q = before; q <= after; q++)
+                var currentCount =  await Collection.EstimatedDocumentCountAsync();
+                foreach (var item in items)
                 {
-                    insertedIds.Add(q);
+                    currentCount++;
+                    item.RegistrationNumber = currentCount;
                 }
-                return insertedIds;
+               await Collection.InsertManyAsync(items);
+               return items.Select(i=>i.RegistrationNumber);
             }
             catch (MongoWriteException mwx)
             {
@@ -73,10 +70,10 @@ namespace MomentumRegistrationApi.Repository.Implementations
             }
         }
 
-        public ReplaceOneResult Update(T item)
+        public async Task<ReplaceOneResult> UpdateAsync(T item)
         {
             var filter = filterBuilder.Eq(exisitingItem => exisitingItem.Id, item.Id);
-            return Collection.ReplaceOne(filter, item);
+            return await Collection.ReplaceOneAsync(filter, item);
         }
     }
 }

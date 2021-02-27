@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MomentumRegistrationApi.Dtos;
-using MomentumRegistrationApi.Entities;
-using MongoDB.Driver;
 using Repository.Implementations;
 using MomentumRegistrationApi.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace Controllers
 {
@@ -26,54 +25,65 @@ namespace Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<MerchandiseResponseDto>> GetAllMerch()
+        public async Task<ActionResult<IEnumerable<MerchandiseResponseDto>>> GetAllMerch()
         {
-            return StatusCode(200, merchandiseRepository.GetAll().Select(item => item.AsResponseDto()));
+            var allItems = await merchandiseRepository.GetAllAsync();
+            if(allItems ==null)
+                return StatusCode(StatusCodes.Status404NotFound,"No Merch Found");
+            return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsResponseDto()));
         }
         [HttpGet("{Id}")]
-        public ActionResult<MerchandiseResponseDto> GetMerchById(Guid Id)
+        public async Task<ActionResult<MerchandiseResponseDto>> GetMerchById(Guid Id)
         {
-            return StatusCode(200, merchandiseRepository.Get(Id).AsResponseDto());
+            var item = await merchandiseRepository.GetAsync(Id);
+            if(item==null)
+                return StatusCode(StatusCodes.Status404NotFound,"Item Not Found");
+            return StatusCode(StatusCodes.Status200OK, item.AsResponseDto());
         }
 
         [HttpGet("/TshirtSizes")]
         public ActionResult<IEnumerable<string>> GetSizes()
         {
-            return StatusCode(200, merchandiseRepository.GetTshirtSizes());
+            return StatusCode(StatusCodes.Status200OK, merchandiseRepository.GetTshirtSizes());
         }
         [HttpPost]
-        public ActionResult<long> InsertMerch(MerchandiseRequestDto item)
+        public async Task<ActionResult<long>> InsertMerch(MerchandiseRequestDto item)
         {
-
-            return StatusCode(200, merchandiseRepository.Insert(item.AsMerchItem()));
+            var insertedSequence = await merchandiseRepository.InsertAsync(item.AsMerchItem());
+            if(insertedSequence<1)
+                return StatusCode(StatusCodes.Status406NotAcceptable);
+            return StatusCode(StatusCodes.Status201Created, insertedSequence);
         }
         [HttpPost("/many")]
-        public ActionResult<IEnumerable<long>> InsertManyMerch(IEnumerable<MerchandiseRequestDto> items)
+        public async Task<ActionResult<IEnumerable<long>>> InsertManyMerch(IEnumerable<MerchandiseRequestDto> items)
         {
-            return StatusCode(200, merchandiseRepository.InsertMany(items.Select(x => x.AsMerchItem())));
+            var insertedSequenceNumbers = await merchandiseRepository.InsertManyAsync(items.Select(x => x.AsMerchItem()));
+            if (insertedSequenceNumbers==null)
+                return  StatusCode(StatusCodes.Status300MultipleChoices);
+            return StatusCode(StatusCodes.Status201Created,insertedSequenceNumbers );
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateMerch([FromRoute] Guid id, [FromBody] MerchandiseRequestDto item)
+        public async Task<IActionResult> UpdateMerch([FromRoute] Guid id, [FromBody] MerchandiseRequestDto item)
         {
-            var oldItem = merchandiseRepository.Get(id);
+            var oldItem = await merchandiseRepository.GetAsync(id);
             var newItem = oldItem with
             {
                 Price = item.Price,
                 ImageBase64 = item.ImageBase64,
                 Type = item.Type
             };
-            if (merchandiseRepository.Update(newItem).IsAcknowledged)
-                return StatusCode(204);
-            else
-                return StatusCode(400);
+            var updateResult = await merchandiseRepository.UpdateAsync(newItem);
+            if (updateResult.IsAcknowledged)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status406NotAcceptable);
         }
         [HttpDelete("{id}")]
-        public IActionResult DeleteMerch(Guid id)
+        public async Task<IActionResult> DeleteMerch(Guid id)
         {
-            if (merchandiseRepository.Delete(id).IsAcknowledged)
-                return StatusCode(204);
-            else
-                return StatusCode(400);
+            var deleteResult = await merchandiseRepository.DeleteAsync(id);
+            if (deleteResult.IsAcknowledged)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status406NotAcceptable);
         }
     }
 }

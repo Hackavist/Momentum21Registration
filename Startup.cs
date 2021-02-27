@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +46,7 @@ namespace MomentumRegistrationApi
             });
             services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
             
-            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(3));
+            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(3),tags:new string[]{"ready"});
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
@@ -71,7 +72,12 @@ namespace MomentumRegistrationApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/health");
+                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
+                    Predicate = (check)=> check.Tags.Contains("ready")
+                });
+                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
+                    Predicate = (_)=> false
+                });
             });
         }
     }

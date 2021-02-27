@@ -33,17 +33,21 @@ namespace MomentumRegistrationApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHealthChecks();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MomentumRegistrationApi", Version = "v1" });
             });
+            
             services.AddTransient<ICustomMongoClient>(serviceProvider =>{
                 var settings =Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
                 return new CustomMongoClient(settings.ConnectionString,settings.DbName);
-            });
+            });            
+            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
+
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
-            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
+            
             
         }
 
@@ -66,6 +70,7 @@ namespace MomentumRegistrationApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }

@@ -33,22 +33,23 @@ namespace MomentumRegistrationApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddHealthChecks();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MomentumRegistrationApi", Version = "v1" });
             });
-            
-            services.AddTransient<ICustomMongoClient>(serviceProvider =>{
-                var settings =Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
-                return new CustomMongoClient(settings.ConnectionString,settings.DbName);
-            });            
-            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
+            var mongoDbSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+            services.AddTransient<ICustomMongoClient>(serviceProvider =>
+            {
 
+                return new CustomMongoClient(mongoDbSettings.ConnectionString, mongoDbSettings.DbName);
+            });
+            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
+            
+            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(3));
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
-            
-            
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -10,8 +10,8 @@ namespace MomentumRegistrationApi.Repository.Implementations
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
-        private readonly IMongoCollection<T> Collection;
-        private readonly FilterDefinitionBuilder<T> filterBuilder = Builders<T>.Filter;
+        protected readonly IMongoCollection<T> Collection;
+        protected readonly FilterDefinitionBuilder<T> filterBuilder = Builders<T>.Filter;
 
         public Repository(ICustomMongoClient mongoClient)
         {

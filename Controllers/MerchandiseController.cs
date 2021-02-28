@@ -9,7 +9,7 @@ using Repository.Implementations;
 using MomentumRegistrationApi.Extensions;
 using Microsoft.AspNetCore.Http;
 
-namespace Controllers
+namespace MomentumRegistrationApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -28,29 +28,23 @@ namespace Controllers
         public async Task<ActionResult<IEnumerable<MerchandiseResponseDto>>> GetAllMerch()
         {
             var allItems = await merchandiseRepository.GetAllAsync();
-            if(allItems ==null)
-                return StatusCode(StatusCodes.Status404NotFound,"No Merch Found");
+            if (allItems == null)
+                return StatusCode(StatusCodes.Status404NotFound, "No Merch Found");
             return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsResponseDto()));
         }
         [HttpGet("{Id}")]
         public async Task<ActionResult<MerchandiseResponseDto>> GetMerchById(Guid Id)
         {
             var item = await merchandiseRepository.GetAsync(Id);
-            if(item==null)
-                return StatusCode(StatusCodes.Status404NotFound,"Item Not Found");
+            if (item == null)
+                return StatusCode(StatusCodes.Status404NotFound, "Item Not Found");
             return StatusCode(StatusCodes.Status200OK, item.AsResponseDto());
-        }
-
-        [HttpGet("/TshirtSizes")]
-        public ActionResult<IEnumerable<string>> GetSizes()
-        {
-            return StatusCode(StatusCodes.Status200OK, merchandiseRepository.GetTshirtSizes());
         }
         [HttpPost]
         public async Task<ActionResult<long>> InsertMerch(MerchandiseRequestDto item)
         {
             var insertedSequence = await merchandiseRepository.InsertAsync(item.AsMerchItem());
-            if(insertedSequence<1)
+            if (insertedSequence < 1)
                 return StatusCode(StatusCodes.Status406NotAcceptable);
             return StatusCode(StatusCodes.Status201Created, insertedSequence);
         }
@@ -58,9 +52,9 @@ namespace Controllers
         public async Task<ActionResult<IEnumerable<long>>> InsertManyMerch(IEnumerable<MerchandiseRequestDto> items)
         {
             var insertedSequenceNumbers = await merchandiseRepository.InsertManyAsync(items.Select(x => x.AsMerchItem()));
-            if (insertedSequenceNumbers==null)
-                return  StatusCode(StatusCodes.Status300MultipleChoices);
-            return StatusCode(StatusCodes.Status201Created,insertedSequenceNumbers );
+            if (insertedSequenceNumbers == null)
+                return StatusCode(StatusCodes.Status300MultipleChoices);
+            return StatusCode(StatusCodes.Status201Created, insertedSequenceNumbers);
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMerch([FromRoute] Guid id, [FromBody] MerchandiseRequestDto item)
@@ -85,5 +79,6 @@ namespace Controllers
                 return StatusCode(StatusCodes.Status204NoContent);
             return StatusCode(StatusCodes.Status406NotAcceptable);
         }
+
     }
 }

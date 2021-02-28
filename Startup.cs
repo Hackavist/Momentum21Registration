@@ -46,7 +46,7 @@ namespace MomentumRegistrationApi
             });
             services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
             
-            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(3),tags:new string[]{"ready"});
+            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(20),tags:new string[]{"ready"});
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 

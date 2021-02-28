@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: momentum-api-deployment
+spec:
+  selector:
+    matchLabels:
+      app: momentum-api
+  template:
+    metadata:
+      labels:
+        app: momentum-api
+    spec:
+      containers:
+        - name: momentum-api
+          image: hackavist/momentum_api:v2
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          env:
+            - name: MongoDbSettings__Host
+              value: mongodb-service
+            - name: MongoDbSettings__DbName
+              value: MomentumRegistration
+            - name: MongoDbSettings__Password
+              valueFrom:
+                secretKeyRef:
+                  name: momentum-api-secrets
+                  key: mongodb-password
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: momentum-api-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: momentum-api
+  ports:
+    - port: 80
+      targetPort: 80

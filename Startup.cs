@@ -71,9 +71,6 @@ namespace MomentumRegistrationApi
                 endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
                     Predicate = (check)=> check.Tags.Contains("ready")
                 });
-                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
-                    Predicate = (_)=> false
-                });
             });
         }
     }

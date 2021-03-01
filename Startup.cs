@@ -37,8 +37,7 @@ namespace MomentumRegistrationApi
                 options.AddPolicy("AllowAll", builder=> {
                     builder.AllowAnyOrigin()
                     .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
+                    .AllowAnyHeader();
                 });
             });
             services.AddControllers();

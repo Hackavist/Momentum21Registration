@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -44,11 +45,39 @@ namespace MomentumRegistrationApi
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MomentumRegistrationApi", Version = "v1" });
+                c.AddSecurityDefinition("Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Please enter into field the word 'Bearer' following by space and Access token",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer"
+                    }
+                );
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "ApiKey", // to be rechecked
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
             });
             var mongoDbSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
             services.AddTransient<ICustomMongoClient>(serviceProvider =>
             {
                 return new CustomMongoClient(mongoDbSettings.ConnectionString, mongoDbSettings.DbName);
+
             });
 
             var key = Encoding.ASCII.GetBytes(AuthSettings.Secret);
@@ -70,6 +99,7 @@ namespace MomentumRegistrationApi
                 };
 
             });
+
 
             services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
             services.AddTransient<ILcLookUpRepository, LcLookupRepository>();

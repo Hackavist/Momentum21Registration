@@ -33,7 +33,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "No Attendees Found");
             return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsResponseDto()));
         }
-        [Authorize]
+        // [Authorize]
         [HttpGet("{Id}")]
         public async Task<ActionResult<AttendeeRegistrationResponseDto>> GetAttendeesById(Guid Id)
         {

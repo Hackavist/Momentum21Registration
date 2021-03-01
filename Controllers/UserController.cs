@@ -79,7 +79,7 @@ namespace MomentumRegistrationApi.Controllers
                 Expiry = 5.0
             });
         }
-       [Authorize]
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Deleteuser(Guid id)
         {

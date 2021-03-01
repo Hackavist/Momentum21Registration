@@ -15,7 +15,7 @@ namespace MomentumRegistrationApi.Extensions
                 CreationDateTime = item.CreationDateTime,
                 Type = item.Type,
                 Price = item.Price,
-                ImageBase64 = item.ImageBase64
+                ImageBase64 = Helpers.Helpers.StringFromByteArray(item.ImageBytes)
             };
         }
 
@@ -28,7 +28,7 @@ namespace MomentumRegistrationApi.Extensions
                 CreationDateTime = DateTimeOffset.UtcNow,
                 Price = item.Price,
                 Type = item.Type,
-                ImageBase64 = item.ImageBase64
+                ImageBytes = Helpers.Helpers.ByteArrayFromBase64String(item.ImageBase64)
             };
         }
     }

@@ -2,9 +2,9 @@ namespace MomentumRegistrationApi.Entities
 {
     public class AttendeeMedia
     {
-        public string PeronalIamge { get; set; }
-        public string PassportImage { get; set; }
-        public string NationalIdFrontImage { get; set; }
-        public string NationalIdBackImage { get; set; }
+        public byte[] PeronalIamge { get; set; }
+        public byte[] PassportImage { get; set; }
+        public byte[] NationalIdFrontImage { get; set; }
+        public byte[] NationalIdBackImage { get; set; }
     }
 }

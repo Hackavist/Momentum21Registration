@@ -8,6 +8,7 @@ using MomentumRegistrationApi.Dtos;
 using MomentumRegistrationApi.Extensions;
 using Microsoft.AspNetCore.Http;
 using MomentumRegistrationApi.Repository.Implementations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MomentumRegistrationApi.Controllers
 {
@@ -23,7 +24,7 @@ namespace MomentumRegistrationApi.Controllers
             _logger = logger;
             this.merchandiseRepository = merchandiseRepository;
         }
-
+         [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MerchandiseResponseDto>>> GetAllMerch()
         {
@@ -32,6 +33,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "No Merch Found");
             return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsResponseDto()));
         }
+        ////////[Authorize]
         [HttpGet("{Id}")]
         public async Task<ActionResult<MerchandiseResponseDto>> GetMerchById(Guid Id)
         {
@@ -40,6 +42,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "Item Not Found");
             return StatusCode(StatusCodes.Status200OK, item.AsResponseDto());
         }
+        // //////[Authorize]
         [HttpPost]
         public async Task<ActionResult<long>> InsertMerch(MerchandiseRequestDto item)
         {
@@ -48,6 +51,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status406NotAcceptable);
             return StatusCode(StatusCodes.Status201Created, insertedSequence);
         }
+        ////////[Authorize]
         [HttpPost("/many")]
         public async Task<ActionResult<IEnumerable<long>>> InsertManyMerch(IEnumerable<MerchandiseRequestDto> items)
         {
@@ -56,6 +60,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status300MultipleChoices);
             return StatusCode(StatusCodes.Status201Created, insertedSequenceNumbers);
         }
+        ////////[Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMerch([FromRoute] Guid id, [FromBody] MerchandiseRequestDto item)
         {
@@ -63,7 +68,7 @@ namespace MomentumRegistrationApi.Controllers
             var newItem = oldItem with
             {
                 Price = item.Price,
-                ImageBase64 = item.ImageBase64,
+                ImageBytes = Helpers.Helpers.ByteArrayFromBase64String(item.ImageBase64),
                 Type = item.Type
             };
             var updateResult = await merchandiseRepository.UpdateAsync(newItem);
@@ -71,6 +76,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status204NoContent);
             return StatusCode(StatusCodes.Status406NotAcceptable);
         }
+        ////////[Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMerch(Guid id)
         {

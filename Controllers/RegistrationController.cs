@@ -8,6 +8,8 @@ using MomentumRegistrationApi.Dtos;
 using MomentumRegistrationApi.Extensions;
 using Microsoft.AspNetCore.Http;
 using MomentumRegistrationApi.Repository.Implementations;
+using Microsoft.AspNetCore.Authorization;
+
 namespace MomentumRegistrationApi.Controllers
 {
     [ApiController]
@@ -22,6 +24,7 @@ namespace MomentumRegistrationApi.Controllers
             _logger = logger;
             this.attendeeRepository = attendeeRepository;
         }
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AttendeeRegistrationResponseDto>>> GetAllAttendees()
         {
@@ -30,6 +33,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "No Attendees Found");
             return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsResponseDto()));
         }
+        [Authorize]
         [HttpGet("{Id}")]
         public async Task<ActionResult<AttendeeRegistrationResponseDto>> GetAttendeesById(Guid Id)
         {
@@ -38,6 +42,7 @@ namespace MomentumRegistrationApi.Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "Item Not Found");
             return StatusCode(StatusCodes.Status200OK, item.AsResponseDto());
         }
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<long>> InsertAttendees(AttendeeRegistrationRequestDto item)
         {
@@ -69,6 +74,7 @@ namespace MomentumRegistrationApi.Controllers
         //         return StatusCode(StatusCodes.Status204NoContent);
         //     return StatusCode(StatusCodes.Status406NotAcceptable);
         // }
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAttendees(Guid id)
         {

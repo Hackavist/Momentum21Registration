@@ -7,12 +7,14 @@ using MomentumRegistrationApi.Dtos;
 using MomentumRegistrationApi.Extensions;
 using Microsoft.AspNetCore.Http;
 using MomentumRegistrationApi.Repository.Implementations;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace Controllers
-{    
+{
     [ApiController]
     [Route("[controller]")]
-    public class LcLookUpController :ControllerBase
+    public class LcLookUpController : ControllerBase
     {
         private readonly ILogger<LcLookUpController> _logger;
         private readonly ILcLookUpRepository lookupRepository;
@@ -22,7 +24,7 @@ namespace Controllers
             _logger = logger;
             this.lookupRepository = lookupRepository;
         }
-        
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LookUpResponseDto>>> GetAlllookups()
         {
@@ -31,7 +33,7 @@ namespace Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "No Lookups Found");
             return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsDto()));
         }
-                
+        [AllowAnonymous]
         [HttpGet("{code}")]
         public async Task<ActionResult<LookUpResponseDto>> LookUpLc(string code)
         {
@@ -40,6 +42,7 @@ namespace Controllers
                 return StatusCode(StatusCodes.Status404NotFound, "Code Not Found");
             return StatusCode(StatusCodes.Status200OK, lookUp.AsDto());
         }
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<long>> InsertLcLookUp(LookUpRequestDto lookup)
         {
@@ -48,6 +51,7 @@ namespace Controllers
                 return StatusCode(StatusCodes.Status406NotAcceptable);
             return StatusCode(StatusCodes.Status201Created, insertedSequence);
         }
+        [Authorize]
         [HttpPost("/InsertLCCodes")]
         public async Task<ActionResult<IEnumerable<long>>> InsertManyLcLookUps(IEnumerable<LookUpRequestDto> items)
         {
@@ -56,6 +60,14 @@ namespace Controllers
                 return StatusCode(StatusCodes.Status300MultipleChoices);
             return StatusCode(StatusCodes.Status201Created, insertedSequenceNumbers);
         }
-       
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Deletlookup(Guid id)
+        {
+            var deleteResult = await lookupRepository.DeleteAsync(id);
+            if (deleteResult.IsAcknowledged)
+                return StatusCode(StatusCodes.Status204NoContent);
+            return StatusCode(StatusCodes.Status406NotAcceptable);
+        }
     }
 }

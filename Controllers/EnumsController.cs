@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MomentumRegistrationApi.Dtos;
 using MomentumRegistrationApi.Enums;
@@ -9,6 +10,7 @@ namespace MomentumRegistrationApi.Controllers
     [Route("[controller]")]
     public class EnumsController : ControllerBase
     {
+        [AllowAnonymous]
         [HttpGet("/LCs")]
         public ActionResult<IEnumerable<EnumResultDto>> GetLocalCommittees()
         {
@@ -21,7 +23,7 @@ namespace MomentumRegistrationApi.Controllers
             }
             return Ok(sizes);
         }
-
+        [AllowAnonymous]
         [HttpGet("/Functions")]
         public ActionResult<IEnumerable<EnumResultDto>> GetFunctions()
         {
@@ -34,7 +36,7 @@ namespace MomentumRegistrationApi.Controllers
             }
             return Ok(sizes);
         }
-
+        [AllowAnonymous]
         [HttpGet("/Roles")]
         public ActionResult<IEnumerable<EnumResultDto>> GetRoles()
         {
@@ -47,7 +49,7 @@ namespace MomentumRegistrationApi.Controllers
             }
             return Ok(sizes);
         }
-
+        [AllowAnonymous]
         [HttpGet("/MerchandiseType")]
         public ActionResult<IEnumerable<EnumResultDto>> GetMerchandiseType()
         {
@@ -60,7 +62,7 @@ namespace MomentumRegistrationApi.Controllers
             }
             return Ok(sizes);
         }
-
+        [AllowAnonymous]
         [HttpGet("/TshirtSizes")]
         public ActionResult<IEnumerable<EnumResultDto>> GetSizes()
         {

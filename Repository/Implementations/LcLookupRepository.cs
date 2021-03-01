@@ -5,7 +5,7 @@ using MomentumRegistrationApi.Repository.Implementations;
 using MomentumRegistrationApi.Settings;
 using MongoDB.Driver;
 
-namespace Repository.Implementations
+namespace MomentumRegistrationApi.Repository.Implementations
 {
     public interface ILcLookUpRepository : IRepository<LcLookUp>
     {
@@ -18,8 +18,7 @@ namespace Repository.Implementations
 
             var filter = filterBuilder.Eq(item => item.Code, code);
             return await Collection.Find(filter).SingleOrDefaultAsync();
-        
-
+    
         }
     }
 }

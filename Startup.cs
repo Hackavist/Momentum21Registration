@@ -1,23 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MomentumRegistrationApi.Repository.Implementations;
 using MomentumRegistrationApi.Settings;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver;
-using Repository.Implementations;
+
 
 namespace MomentumRegistrationApi
 {
@@ -33,8 +27,10 @@ namespace MomentumRegistrationApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options => {
-                options.AddPolicy("AllowAll", builder=> {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder =>
+                {
                     builder.AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader();
@@ -50,11 +46,12 @@ namespace MomentumRegistrationApi
             {
                 return new CustomMongoClient(mongoDbSettings.ConnectionString, mongoDbSettings.DbName);
             });
-            
+
             services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
             services.AddTransient<ILcLookUpRepository, LcLookupRepository>();
+            services.AddTransient<IAttendeeRepository, AttendeeRepository>();
             
-            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(10),tags:new string[]{"ready"});
+            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString, name: "mongoDb", timeout: TimeSpan.FromSeconds(10), tags: new string[] { "ready" });
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
@@ -77,9 +74,9 @@ namespace MomentumRegistrationApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                // endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
-                //     Predicate = (check)=> check.Tags.Contains("ready")
-                // });
+                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
+                    Predicate = (check)=> check.Tags.Contains("ready")
+                });
             });
         }
     }

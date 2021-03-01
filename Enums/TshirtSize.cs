@@ -7,6 +7,7 @@ namespace MomentumRegistrationApi.Enums
         L=2,
         XL = 3,
         XXL=4,
-        XXXL=5
+        XXXL=5,
+        None = 6
     }
 }

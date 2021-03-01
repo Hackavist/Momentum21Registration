@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using MomentumRegistrationApi.Entities;
-using MomentumRegistrationApi.Enums;
-using MomentumRegistrationApi.Repository;
-using MomentumRegistrationApi.Repository.Implementations;
 using MomentumRegistrationApi.Settings;
 
-namespace Repository.Implementations
+namespace MomentumRegistrationApi.Repository.Implementations
 {
     public interface IMerchandiseRepository : IRepository<MerchItem>
     {

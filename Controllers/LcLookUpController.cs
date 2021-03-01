@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MomentumRegistrationApi.Dtos;
-using Repository.Implementations;
 using MomentumRegistrationApi.Extensions;
 using Microsoft.AspNetCore.Http;
-using Entities;
+using MomentumRegistrationApi.Repository.Implementations;
 
 namespace Controllers
 {    

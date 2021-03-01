@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MomentumRegistrationApi.Dtos;
-using Repository.Implementations;
 using MomentumRegistrationApi.Extensions;
 using Microsoft.AspNetCore.Http;
+using MomentumRegistrationApi.Repository.Implementations;
 
 namespace MomentumRegistrationApi.Controllers
 {

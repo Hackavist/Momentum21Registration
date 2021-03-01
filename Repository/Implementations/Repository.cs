@@ -17,7 +17,7 @@ namespace MomentumRegistrationApi.Repository.Implementations
         {
             var customClient = mongoClient as CustomMongoClient;
             var database = mongoClient.GetDatabase(customClient.DatabaseName);
-            Collection = database.GetCollection<T>(nameof(T));
+            Collection = database.GetCollection<T>(typeof(T).FullName);
         }
 
         public async Task<DeleteResult> DeleteAsync(Guid itemId)

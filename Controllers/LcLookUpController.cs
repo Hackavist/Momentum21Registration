@@ -24,23 +24,40 @@ namespace Controllers
             _logger = logger;
             this.lookupRepository = lookupRepository;
         }
+        
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LookUpResponseDto>>> GetAlllookups()
+        {
+            var allItems = await lookupRepository.GetAllAsync();
+            if (allItems == null)
+                return StatusCode(StatusCodes.Status404NotFound, "No Lookups Found");
+            return StatusCode(StatusCodes.Status200OK, allItems.Select(item => item.AsDto()));
+        }
                 
         [HttpGet("{code}")]
-        public async Task<ActionResult<LcLookUp>> LookUpLc(string code)
+        public async Task<ActionResult<LookUpResponseDto>> LookUpLc(string code)
         {
-            var item = await lookupRepository.ValidateCode(code);
-            if (item == null)
+            var lookUp = await lookupRepository.ValidateCode(code);
+            if (lookUp == null)
                 return StatusCode(StatusCodes.Status404NotFound, "Code Not Found");
-            return StatusCode(StatusCodes.Status200OK, item);
+            return StatusCode(StatusCodes.Status200OK, lookUp.AsDto());
         }
-        // [HttpPost]
-        // public async Task<ActionResult<long>> InsertMerch(MerchandiseRequestDto item)
-        // {
-        //     var insertedSequence = await lookupRepository.InsertAsync(item);
-        //     if (insertedSequence < 1)
-        //         return StatusCode(StatusCodes.Status406NotAcceptable);
-        //     return StatusCode(StatusCodes.Status201Created, insertedSequence);
-        // }
+        [HttpPost]
+        public async Task<ActionResult<long>> InsertLcLookUp(LookUpRequestDto lookup)
+        {
+            var insertedSequence = await lookupRepository.InsertAsync(lookup.AsLookUp());
+            if (insertedSequence < 1)
+                return StatusCode(StatusCodes.Status406NotAcceptable);
+            return StatusCode(StatusCodes.Status201Created, insertedSequence);
+        }
+        [HttpPost("/InsertLCCodes")]
+        public async Task<ActionResult<IEnumerable<long>>> InsertManyLcLookUps(IEnumerable<LookUpRequestDto> items)
+        {
+            var insertedSequenceNumbers = await lookupRepository.InsertManyAsync(items.Select(x => x.AsLookUp()));
+            if (insertedSequenceNumbers == null)
+                return StatusCode(StatusCodes.Status300MultipleChoices);
+            return StatusCode(StatusCodes.Status201Created, insertedSequenceNumbers);
+        }
        
     }
 }

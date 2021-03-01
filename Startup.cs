@@ -41,12 +41,13 @@ namespace MomentumRegistrationApi
             var mongoDbSettings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
             services.AddTransient<ICustomMongoClient>(serviceProvider =>
             {
-
                 return new CustomMongoClient(mongoDbSettings.ConnectionString, mongoDbSettings.DbName);
             });
-            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
             
-            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(20),tags:new string[]{"ready"});
+            services.AddTransient<IMerchandiseRepository, MerchandiseRepository>();
+            services.AddTransient<ILcLookUpRepository, LcLookupRepository>();
+            
+            services.AddHealthChecks().AddMongoDb(mongoDbSettings.ConnectionString,name:"mongoDb",timeout:TimeSpan.FromSeconds(10),tags:new string[]{"ready"});
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
             BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
 
@@ -68,9 +69,9 @@ namespace MomentumRegistrationApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
-                    Predicate = (check)=> check.Tags.Contains("ready")
-                });
+                // endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions{
+                //     Predicate = (check)=> check.Tags.Contains("ready")
+                // });
             });
         }
     }

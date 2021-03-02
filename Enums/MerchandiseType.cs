@@ -3,13 +3,14 @@ namespace MomentumRegistrationApi.Enums
     public enum MerchandiseType
     {
         TShirt=0,
-        Keychains=1,
+        Keychain=1,
         RubberWristband=2,
         GlowingWristband=3,
         FiberWristband=4,
-        Sticker=5,
+        MomentumSticker=5,
         Cap=6,
         Socks=7,
-        Facemask=8
+        Facemask=8,
+        AiesecSticker=9,
     }
 }   

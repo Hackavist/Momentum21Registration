@@ -23,7 +23,7 @@ namespace MomentumRegistrationApi.Dtos
         [Range(1, 150)]
         public decimal Price { get; set; }
         [Required]
-        [Range(0, 8)]
+        [Range(0, 9)]
         public MerchandiseType Type { get; set; }
     }
 }
